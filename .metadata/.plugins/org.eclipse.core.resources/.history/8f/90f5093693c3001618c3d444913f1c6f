@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {
+		width: 100%;
+		height: 100%;
+		background-color: #202020;
+}
+
+div {
+	    position:absolute;
+		height:100%;
+		width:100%;
+		display: table;
+}
+
+h1 {
+	    display: table-cell;
+		vertical-align: middle;
+		text-align:center;
+		color: #FFFFFF;
+}
+lg_red { 
+		color: #d80546;
+}
+</style>
+	<script>
+	document.addEventListener("keydown", function(event){
+		var message = "Keycode is <lg_red>" + event.keyCode + "</lg_red>"+ "</br>";
+		document.getElementById("results").innerHTML = message;
+	});
+	document.addEventListener("mousemove", function(event){
+		var coordinate = "x: <lg_red>" + event.pageX + "</lg_red>"+ "</br>";
+		document.getElementById("cursor_x").innerHTML = coordinate;
+		coordinate = "y: <lg_red>" + event.pageY + "</lg_red>"+ "</br>";
+		document.getElementById("cursor_y").innerHTML = coordinate;
+	});
+	
+</script>
+</head>
+<body>
+	<h1 id="results">Press a Key</br></h1>	
+	<h1 id="cursor_x">x:</h1>	
+	<h1 id="cursor_y">y:</h1>	
+</body>
+</html>

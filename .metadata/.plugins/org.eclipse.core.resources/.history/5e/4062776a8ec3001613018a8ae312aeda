@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {
+		width: 100%;
+		height: 100%;
+		background-color: #202020;
+}
+
+div {
+	    position:absolute;
+		height:100%;
+		width:100%;
+		display: table;
+}
+
+h1 {
+	    display: table-cell;
+		vertical-align: middle;
+		text-align:center;
+		color: #FFFFFF;
+}
+lg_red { 
+		color: #d80546;
+}
+</style>
+	<script>
+	document.addEventListener("keydown", function(inEvent){
+		var message = "Keycode is <lg_red>" + inEvent.keyCode + "</lg_red>"+ "</br>";
+		document.getElementById("results").innerHTML = message;
+	});
+	/*document.addEventListener("keydown", function(inEvent){
+		var message = "x: <lg_red>" + inEvent.keyCode + "</lg_red>"+ "</br>";
+		document.getElementById("cursor_x").innerHTML = message;
+		message = "y: <lg_red>" + inEvent.keyCode + "</lg_red>"+ "</br>";
+		document.getElementById("cursor_y").innerHTML = message;
+	});*/
+	var subscriptionHandle;
+	 
+	var webOSTVVersion = "2.0.0";
+	 
+	// Get webOS TV version
+	webOS.service.request("luna://com.webos.service.tv.systemproperty", {
+	    method: "getSystemInfo",
+	    parameters: { "keys":["sdkVersion"] },
+	    onSuccess: function (inResponse) {
+	        webOSTVVersion = inResponse.sdkVersion;
+	        console.log("webOS TV Version: " + inResponse.sdkVersion);
+	        //To-Do something
+	        return true;
+	    },
+	    onFailure: function (inError) {
+	        console.log("Failed to get webOS TV Version: " + inResponse.errorText);
+	        console.log("[" + inError.errorCode + "]: " + inError.errorText);
+	        // To-Do something
+	        return;
+	    }
+	});
+	 
+	// Set parameters by webOS TV version
+	var options;
+	if( webOSTVVersion == "2.0.0") {
+	    options.callbackInterval = 1;
+	    options.subscribe = true;
+	} else {
+	    options.callbackInterval = 1;
+	    options.subscribe = true;
+	    options.sleep = true;
+	    options.autoAlign = false;
+	}	 
+	
+</script>
+</head>
+<body>
+	<p id="results">Press a Key</p>
+	<p id="cursor_x">x:</p>
+	<p id="cursor_y">y:</p>
+</body>
+</html>

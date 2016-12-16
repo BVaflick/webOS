@@ -1,0 +1,10 @@
+{
+  "id": "app",
+  "version": "0.0.1",
+  "vendor": "BVaflick",
+  "type": "web",
+  "main": "index.html",
+  "title": "TestApp",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png"
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {
+		width: 100%;
+		height: 100%;
+		background-color: #202020;
+}
+
+div {
+	    position:absolute;
+		height:100%;
+		width:100%;
+		display: table;
+}
+
+h1 {
+	    display: table-cell;
+		vertical-align: middle;
+		text-align:center;
+		color: #FFFFFF;
+}
+lg_red { 
+		color: #d80546;
+}
+</style>
+	<script>
+	document.addEventListener("keydown", function(inEvent){
+		var message = "Keycode is <lg_red>" + inEvent.keyCode + "</lg_red>"+ "</br>";
+		document.getElementById("results").innerHTML = message;
+	});
+	/*document.addEventListener("keydown", function(inEvent){
+		var message = "x: <lg_red>" + inEvent.keyCode + "</lg_red>"+ "</br>";
+		document.getElementById("cursor_x").innerHTML = message;
+		message = "y: <lg_red>" + inEvent.keyCode + "</lg_red>"+ "</br>";
+		document.getElementById("cursor_y").innerHTML = message;
+	});*/
+	subscriptionHandle = webOS.service.request("luna://com.webos.service.mrcu", {
+	    method: "sensor/getSensorData",
+	    parameters: options,
+	    onSuccess: function (inResponse) {
+	        if (inResponse.subscribed == true) {
+	            console.log("Subscription Enabled");
+	            // To-Do something
+	        }
+	 
+	        console.log("Result: " + JSON.stringify(inResponse));
+	        // To-Do something
+	        return true;
+	    },
+	    onFailure: function (inError) {
+	        console.log("Failed to get sensor data");
+	        console.log("[" + inError.errorCode + "]: " + inError.errorText);
+	        // To-Do something
+	        return;
+	    }
+	);
+</script>
+</head>
+<body>
+	<p id="results">Press a Key</p>
+	<p id="cursor_x">x:</p>
+	<p id="cursor_y">y:</p>
+</body>
+</html>
