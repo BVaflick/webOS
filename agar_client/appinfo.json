@@ -1,0 +1,10 @@
+{
+    "vendor": "BVaflick",
+    "largeIcon": "largeIcon.png",
+    "icon": "icon.png",
+    "main": "index.html",
+    "id": "client.agar.io",
+    "title": "agar_client",
+    "type": "web",
+    "version": "0.0.1"
+}
