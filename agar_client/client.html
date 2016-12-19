@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style type="text/css">
+        </style>
+        <script>
+
+            var ws = new WebSocket("ws://localhost:1488");
+            ws.binaryType = "arraybuffer";
+            function prepareData(a) {
+                return new DataView(new ArrayBuffer(a))
+            }
+            function onWsOpen() {
+                var msg;
+                delay = 500;
+                msg = prepareData(5);
+                msg.setUint8(0, 254);
+                msg.setUint32(1, 5, true); // Protcol 5
+                ws.send(msg.buffer);
+                msg = prepareData(5);
+                msg.setUint8(0, 255);
+                msg.setUint32(1, 1332175218, true);
+                ws.send(msg.buffer);
+            }
+            ws.onopen = onWsOpen;
+            ws.onmessage = function(event) {
+                alert("Получены данные " + event.data);
+            };
+            ws.onerror = function(error) {
+                alert("Ошибка " + error.message);
+            };
+            ws.onclose = function(event) {
+            if (event.wasClean) {
+                alert('Соединение закрыто чисто');
+            } else {
+                alert('Обрыв соединения'); // например, "убит" процесс сервера
+            }
+            alert('Код: ' + event.code + ' причина: ' + event.reason);
+        };
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
