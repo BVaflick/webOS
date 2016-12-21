@@ -3,9 +3,8 @@
         SKIN_URL = "./skins/"; // Skin Directory
 
     wHandle.setserver = function(arg) {
-        if (arg != gameMode) {
+        if (arg != CONNECTION_URL) {
             CONNECTION_URL = arg;
-            gameMode = arg;
             showConnecting();
         }
     };
@@ -18,7 +17,7 @@
         leftTouchPos = new Vector2(0, 0),
         leftTouchStartPos = new Vector2(0, 0),
         leftVector = new Vector2(0, 0);
-    
+
     var useHttps = "https:" == wHandle.location.protocol;
 
     function gameLoop() {
@@ -35,11 +34,11 @@
             mouseCoordinateChange()
         };
 
-        if (touchable) {
-            mainCanvas.addEventListener('touchstart', onTouchStart, false);
-            mainCanvas.addEventListener('touchmove', onTouchMove, false);
-            mainCanvas.addEventListener('touchend', onTouchEnd, false);
-        }
+//        if (touchable) {
+//            mainCanvas.addEventListener('touchstart', onTouchStart, false);
+//            mainCanvas.addEventListener('touchmove', onTouchMove, false);
+//            mainCanvas.addEventListener('touchend', onTouchEnd, false);
+//        }
 
         mainCanvas.onmouseup = function() {};
         if (/firefox/i.test(navigator.userAgent)) {
@@ -66,59 +65,59 @@
             wPressed = false;
         wHandle.onkeydown = function(event) {
             switch (event.keyCode) {
-                case 32: // split
+//                case 13: // enter
+//                    if (isTyping || hideChat) {
+//                        isTyping = false;
+//                        document.getElementById("chat_textbox").blur();
+//                        chattxt = document.getElementById("chat_textbox").value;
+//                        if (chattxt.length > 0) sendChat(chattxt);
+//                        document.getElementById("chat_textbox").value = "";
+//                    } else {
+//                        if (!hasOverlay) {
+//                            document.getElementById("chat_textbox").focus();
+//                            isTyping = true;
+//                        }
+//                    }
+//                    break;
+                case 403: // space
                     if ((!spacePressed) && (!isTyping)) {
                         sendMouseMove();
                         sendUint8(17);
                         spacePressed = true;
                     }
                     break;
-                case 81: // key q pressed
-                    if ((!qPressed) && (!isTyping)) {
-                        sendUint8(18);
-                        qPressed = true;
-                    }
-                    break;
-                case 87: // eject mass
+//                case 81: // Q
+//                    if ((!qPressed) && (!isTyping)) {
+//                        sendUint8(18);
+//                        qPressed = true;
+//                    }
+//                    break;
+                case 404: // W
                     if ((!wPressed) && (!isTyping)) {
                         sendMouseMove();
                         sendUint8(21);
                         wPressed = true;
                     }
                     break;
-                case 27: // quit
-                    showOverlays(true);
-                    break;
-
-                case 13:
-                    if (isTyping || hideChat) {
-                        isTyping = false;
-                        document.getElementById("chat_textbox").blur();
-                        chattxt = document.getElementById("chat_textbox").value;
-                        if (chattxt.length > 0) sendChat(chattxt);
-                        document.getElementById("chat_textbox").value = "";
-                    } else {
-                        if (!hasOverlay) {
-                            document.getElementById("chat_textbox").focus();
-                            isTyping = true;
-                        }
-                    }
+//                case 27: // esc
+//                    showOverlays(true);
+//                    break;
             }
         };
         wHandle.onkeyup = function(event) {
             switch (event.keyCode) {
-                case 32:
+                case 403: // space
                     spacePressed = false;
                     break;
-                case 87:
+                case 404: // W
                     wPressed = false;
                     break;
-                case 81:
-                    if (qPressed) {
-                        sendUint8(19);
-                        qPressed = false;
-                    }
-                    break;
+//                case 81: // Q
+//                    if (qPressed) {
+//                        sendUint8(19);
+//                        qPressed = false;
+//                    }
+//                    break;
             }
         };
         wHandle.onblur = function() {
@@ -135,7 +134,6 @@
         }
         setInterval(sendMouseMove, 40);
 
-        w = wHandle.localStorage.location;
         null == ws && showConnecting();
         wjQuery("#overlays").show();
     }
@@ -153,12 +151,12 @@
             var size = ~~(canvasWidth / 7);
             if ((touch.clientX > canvasWidth - size) && (touch.clientY > canvasHeight - size)) {
                 sendMouseMove();
-                sendUint8(17); //split
+                sendUint8(17); // split
             }
 
             if ((touch.clientX > canvasWidth - size) && (touch.clientY > canvasHeight - 2 * size - 10) && (touch.clientY < canvasHeight - size - 10)) {
                 sendMouseMove();
-                sendUint8(21); //eject
+                sendUint8(21); // eject
             }
         }
         touches = e.touches;
@@ -245,7 +243,6 @@
 
     function hideOverlays() {
         hasOverlay = false;
-        wjQuery("#adsBottom").hide();
         wjQuery("#overlays").hide();
     }
 
@@ -282,7 +279,7 @@
         leaderBoard = [];
         mainCanvas = teamScores = null;
         userScore = 0;
-        console.log("Connecting to " + wsUrl);
+        log.info("Connecting to " + wsUrl + "..");
         ws = new WebSocket(wsUrl);
         ws.binaryType = "arraybuffer";
         ws.onopen = onWsOpen;
@@ -304,22 +301,23 @@
         wjQuery("#connecting").hide();
         msg = prepareData(5);
         msg.setUint8(0, 254);
-        msg.setUint32(1, 5, true); // Protcol 5
+        msg.setUint32(1, 5, true); // Protocol 5
         wsSend(msg);
         msg = prepareData(5);
         msg.setUint8(0, 255);
-        msg.setUint32(1, 1332175218, true);
+        msg.setUint32(1, 0, true);
         wsSend(msg);
         sendNickName();
+        log.info("Connection successful!")
     }
 
     function onWsClose() {
         setTimeout(showConnecting, delay);
-        delay *= 1.5
+        delay *= 1.5;
     }
 
     function onWsMessage(msg) {
-        handleWsMessage(new DataView(msg.data))
+        handleWsMessage(new DataView(msg.data));
     }
 
     function handleWsMessage(msg) {
@@ -437,14 +435,16 @@
         }
 
         var flags = view.getUint8(offset++);
-        // for future expansions
-        if (flags & 2) {
+        
+        if (flags & 8) {
             offset += 4;
         }
+
         if (flags & 4) {
             offset += 8;
         }
-        if (flags & 8) {
+
+        if (flags & 2) {
             offset += 16;
         }
 
@@ -473,7 +473,7 @@
         chatCanvas = document.createElement("canvas");
         var ctx = chatCanvas.getContext("2d");
         var scaleFactor = Math.min(Math.max(canvasWidth / 1200, 0.75), 1); //scale factor = 0.75 to 1
-        chatCanvas.width = 1000 * scaleFactor;
+        chatCanvas.width = 1E3 * scaleFactor;
         chatCanvas.height = 550 * scaleFactor;
         ctx.scale(scaleFactor, scaleFactor);
         var nowtime = Date.now();
@@ -542,8 +542,9 @@
                     color = (r << 16 | g << 8 | b).toString(16); 6 > color.length;) color = "0" + color;
             var colorstr = "#" + color,
                 flags = view.getUint8(offset++),
-                flagVirus = !!(flags & 1),
-                flagAgitated = !!(flags & 16),
+                flagVirus = !!(flags & 0x01),
+                flagEjected = !!(flags & 0x20),
+                flagAgitated = !!(flags & 0x10),
                 _skin = "";
 
             flags & 2 && (offset += 4);
@@ -580,10 +581,11 @@
                 node.la = posY;
             }
             node.isVirus = flagVirus;
+            node.isEjected = flagEjected;
             node.isAgitated = flagAgitated;
             node.nx = posX;
             node.ny = posY;
-            node.nSize = size;
+            node.setSize(size);
             node.updateCode = code;
             node.updateTime = timestamp;
             node.flag = flags;
@@ -647,7 +649,6 @@
             }
 
             wsSend(msg);
-            //console.log(msg);
         }
     }
 
@@ -687,7 +688,7 @@
         if (0 != playerCells.length) {
             for (var newViewZoom = 0, i = 0; i < playerCells.length; i++) newViewZoom += playerCells[i].size;
             newViewZoom = Math.pow(Math.min(64 / newViewZoom, 1), .4) * viewRange();
-            viewZoom = (9 * viewZoom + newViewZoom) / 10
+            viewZoom = (9 * viewZoom + newViewZoom) / 10;
         }
     }
 
@@ -732,7 +733,7 @@
             drawGrid();
         }
         nodelist.sort(function(a, b) {
-            return a.size == b.size ? a.id - b.id : a.size - b.size
+            return a.size === b.size ? a.id - b.id : a.size - b.size
         });
         ctx.save();
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
@@ -741,7 +742,6 @@
         for (d = 0; d < Cells.length; d++) Cells[d].drawOneCell(ctx);
 
         for (d = 0; d < nodelist.length; d++) nodelist[d].drawOneCell(ctx);
-        //console.log(Cells.length);
         if (drawLine) {
             drawLineX = (3 * drawLineX + lineX) /
                 4;
@@ -863,13 +863,14 @@
 
     function drawLeaderBoard() {
         lbCanvas = null;
-        if (null != teamScores || 0 != leaderBoard.length)
-            if (null != teamScores || showName) {
+        var drawTeam = null != teamScores;
+        if (drawTeam || 0 != leaderBoard.length)
+            if (drawTeam || showName) {
                 lbCanvas = document.createElement("canvas");
                 var ctx = lbCanvas.getContext("2d"),
                     boardLength = 60;
-                boardLength = null == teamScores ? boardLength + 24 * leaderBoard.length : boardLength + 180;
-                var scaleFactor = Math.min(0.22 * canvasHeight, Math.min(200, .3 * canvasWidth)) / 200;
+                boardLength = !drawTeam ? boardLength + 24 * leaderBoard.length : boardLength + 180;
+                var scaleFactor = Math.min(0.22 * canvasHeight, Math.min(200, .3 * canvasWidth)) * 0.005;
                 lbCanvas.width = 200 * scaleFactor;
                 lbCanvas.height = boardLength * scaleFactor;
 
@@ -882,28 +883,20 @@
                 ctx.fillStyle = "#FFFFFF";
                 var c = "Leaderboard";
                 ctx.font = "30px Ubuntu";
-                ctx.fillText(c, 100 - ctx.measureText(c).width / 2, 40);
-                var b;
-                if (null == teamScores) {
-                    for (ctx.font = "20px Ubuntu", b = 0; b < leaderBoard.length; ++b) {
+                ctx.fillText(c, 100 - ctx.measureText(c).width * 0.5, 40);
+                var b, l;
+                if (!drawTeam) {
+                    for (ctx.font = "20px Ubuntu", b = 0, l = leaderBoard.length; b < l; ++b) {
                         c = leaderBoard[b].name || "An unnamed cell";
                         if (!showName) {
                             (c = "An unnamed cell");
                         }
-                        if (-1 != nodesOnScreen.indexOf(leaderBoard[b].id)) {
-                            playerCells[0].name && (c = playerCells[0].name);
-                            ctx.fillStyle = "#FFAAAA";
-                            if (!noRanking) {
-                                c = b + 1 + ". " + c;
-                            }
-                            ctx.fillText(c, 100 - ctx.measureText(c).width / 2, 70 + 24 * b);
-                        } else {
-                            ctx.fillStyle = "#FFFFFF";
-                            if (!noRanking) {
-                                c = b + 1 + ". " + c;
-                            }
-                            ctx.fillText(c, 100 - ctx.measureText(c).width / 2, 70 + 24 * b);
-                        }
+                        var me = -1 != nodesOnScreen.indexOf(leaderBoard[b].id);
+                        if (me) playerCells[0].name && (c = playerCells[0].name);
+                        me ? ctx.fillStyle = "#FFAAAA" : ctx.fillStyle = "#FFFFFF";
+                        if (!noRanking) c = b + 1 + ". " + c;
+                        var start = (ctx.measureText(c).width > 200) ? 2 : 100 - ctx.measureText(c).width * 0.5;
+                        ctx.fillText(c, start, 70 + 24 * b);
                     }
                 } else {
                     for (b = c = 0; b < teamScores.length; ++b) {
@@ -977,7 +970,6 @@
         posX = nodeX = ~~((leftPos + rightPos) / 2),
         posY = nodeY = ~~((topPos + bottomPos) / 2),
         posSize = 1,
-        gameMode = "",
         teamScores = null,
         ma = false,
         hasOverlay = true,
@@ -1037,29 +1029,39 @@
         sendUint8(1);
         hideOverlays()
     };
-    wHandle.setGameMode = function(arg) {
-        if (arg != gameMode) {
-            gameMode = arg;
-            showConnecting();
-        }
-    };
     wHandle.setAcid = function(arg) {
         xa = arg
     };
     wHandle.openSkinsList = function(arg) {
         if ($('#inPageModalTitle').text() != "Skins") {
-            $.get('gallery.php').then(function(data) {
+            $.get('include/gallery.php').then(function(data) {
                 $('#inPageModalTitle').text("Skins");
                 $('#inPageModalBody').html(data);
             });
         }
     };
+
     if (null != wHandle.localStorage) {
+        wjQuery(window).load(function() {
+            wjQuery(".save").each(function() {
+                var id = $(this).data("box-id");
+                var value = wHandle.localStorage.getItem("checkbox-" + id);
+                if (value && value == "true" && 0 != id) {
+                    $(this).prop("checked", "true");
+                    $(this).trigger("change");
+                } else if (id == 0 && value != null) {
+                    $(this).val(value);
+                }
+            });
+            wjQuery(".save").change(function() {
+                var id = $(this).data('box-id');
+                var value = (id == 0) ? $(this).val() : $(this).prop('checked');
+                wHandle.localStorage.setItem("checkbox-" + id, value);
+            });
+        });
         if (null == wHandle.localStorage.AB8) {
             wHandle.localStorage.AB8 = ~~(100 * Math.random());
         }
-        Ra = +wHandle.localStorage.AB8;
-        wHandle.ABGroup = Ra;
     }
 
     setTimeout(function() {}, 3E5);
@@ -1085,22 +1087,6 @@
             }
         }
     });
-    var interval1Id = setInterval(function() {
-        wjQuery.ajax({
-            type: "POST",
-            dataType: "json",
-            url: "checkdir.php",
-            data: data,
-            success: function(data) {
-                response = JSON.parse(data["names"]);
-            }
-        });
-        for (var i = 0; i < response.length; i++) {
-            if (-1 == knownNameDict.indexOf(response[i])) {
-                knownNameDict.push(response[i]);
-            }
-        }
-    }, 60000);
 
     var delay = 500,
         oldX = -1,
@@ -1134,12 +1120,13 @@
         drawTime: 0,
         destroyed: false,
         isVirus: false,
+        isEjected: false,
         isAgitated: false,
         wasSimpleDrawing: true,
         destroy: function() {
             var tmp;
-            for (tmp = 0; tmp < nodelist.length; tmp++)
-                if (nodelist[tmp] == this) {
+            for (tmp = 0, len = nodelist.length; tmp < len; tmp++)
+                if (nodelist[tmp] === this) {
                     nodelist.splice(tmp, 1);
                     break
                 }
@@ -1150,9 +1137,7 @@
                 playerCells.splice(tmp, 1);
             }
             tmp = nodesOnScreen.indexOf(this.id);
-            if (-1 != tmp) {
-                nodesOnScreen.splice(tmp, 1);
-            }
+            if (-1 != tmp) nodesOnScreen.splice(tmp, 1);
             this.destroyed = true;
             Cells.push(this)
         },
@@ -1168,6 +1153,13 @@
                 this.nameCache.setSize(this.getNameSize());
                 this.nameCache.setValue(this.name);
             }
+        },
+        setSize: function(a) {
+            this.nSize = a;
+            var m = ~~(this.size * this.size * 0.01);
+            if (null === this.sizeCache)
+                this.sizeCache = new UText(this.getNameSize() * 0.5, "#FFFFFF", true, "#000000");
+            else this.sizeCache.setSize(this.getNameSize() * 0.5);
         },
         createPoints: function() {
             for (var samplenum = this.getNumPoints(); this.points.length > samplenum;) {
@@ -1275,6 +1267,15 @@
                 return !(this.x + this.size + 40 < nodeX - canvasWidth / 2 / viewZoom || this.y + this.size + 40 < nodeY - canvasHeight / 2 / viewZoom || this.x - this.size - 40 > nodeX + canvasWidth / 2 / viewZoom || this.y - this.size - 40 > nodeY + canvasHeight / 2 / viewZoom);
             }
         },
+        getStrokeColor: function() {
+            var r = (~~(parseInt(this.color.substr(1, 2), 16) * 0.9)).toString(16),
+                g = (~~(parseInt(this.color.substr(3, 2), 16) * 0.9)).toString(16),
+                b = (~~(parseInt(this.color.substr(5, 2), 16) * 0.9)).toString(16);
+            if (r.length == 1) r = "0" + r;
+            if (g.length == 1) g = "0" + g;
+            if (b.length == 1) b = "0" + b;
+            return "#" + r + g + b;
+        },
         drawOneCell: function(ctx) {
             if (this.shouldRender()) {
                 var b = (0 != this.id && !this.isVirus && !this.isAgitated && smoothRender > viewZoom);
@@ -1294,14 +1295,17 @@
                     ctx.strokeStyle = "#AAAAAA";
                 } else {
                     ctx.fillStyle = this.color;
-                    ctx.strokeStyle = this.color;
+                    if (b) ctx.strokeStyle = this.getStrokeColor();
+                    else ctx.strokeStyle = this.color;
                 }
+				ctx.beginPath();
                 if (b) {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI, false);
+                    var lw = this.size * 0.03;
+                    ctx.lineWidth = lw;
+                    ctx.arc(this.x, this.y, this.size - lw * 0.5 + 5, 0, 2 * Math.PI, false);
+                    ctx.stroke();
                 } else {
                     this.movePoints();
-                    ctx.beginPath();
                     var d = this.getNumPoints();
                     ctx.moveTo(this.points[0].x, this.points[0].y);
                     for (c = 1; c <= d; ++c) {
@@ -1319,7 +1323,7 @@
                     }
                 }
 
-                if (showSkin && ':teams' != gameMode && skinName != '' && -1 != knownNameDict.indexOf(skinName)) {
+                if (showSkin && skinName != '' && -1 != knownNameDict.indexOf(skinName)) {
                     if (!skins.hasOwnProperty(skinName)) {
                         skins[skinName] = new Image;
                         skins[skinName].src = SKIN_URL + skinName + '.png';
@@ -1355,37 +1359,37 @@
                 var ncache;
                 //draw name
                 if (0 != this.id) {
-                    var b = ~~this.y;
+                    var x = ~~this.x,
+                        y = ~~this.y,
+						nz = this.getNameSize(),
+                        ratio = Math.ceil(10 * viewZoom) * 0.1;
+                    var ratD = 1 / ratio;
                     if ((showName || c) && this.name && this.nameCache && (null == e || -1 == knownNameDict_noDisp.indexOf(skinName))) {
                         ncache = this.nameCache;
                         ncache.setValue(this.name);
-                        ncache.setSize(this.getNameSize());
-                        var ratio = Math.ceil(10 * viewZoom) / 10;
+                        ncache.setSize(nz);
                         ncache.setScale(ratio);
                         var rnchache = ncache.render(),
-                            m = ~~(rnchache.width / ratio),
-                            h = ~~(rnchache.height / ratio);
-                        ctx.drawImage(rnchache, ~~this.x - ~~(m / 2), b - ~~(h / 2), m, h);
-                        b += rnchache.height / 2 / ratio + 4
+                            m = ~~(rnchache.width * ratD),
+                            h = ~~(rnchache.height * ratD);
+                        ctx.drawImage(rnchache, x - ~~(m * 0.5), y - ~~(h * 0.5), m, h);
+                        b += rnchache.height * 0.5 * ratio + 4;
                     }
 
                     //draw mass
                     if (showMass && (c || 0 == playerCells.length && (!this.isVirus || this.isAgitated) && 20 < this.size)) {
-                        if (null == this.sizeCache) {
-                            this.sizeCache = new UText(this.getNameSize() / 2, "#FFFFFF", true, "#000000")
-                        }
+                        var m = ~~(this.size * this.size * 0.01);
                         c = this.sizeCache;
-                        c.setSize(this.getNameSize() / 2);
-                        c.setValue(~~(this.size * this.size / 100));
-                        ratio = Math.ceil(10 * viewZoom) / 10;
+                        c.setValue(m);
                         c.setScale(ratio);
                         e = c.render();
-                        m = ~~(e.width / ratio);
-                        h = ~~(e.height / ratio);
-                        ctx.drawImage(e, ~~this.x - ~~(m / 2), b - ~~(h / 2), m, h);
+                        m = ~~(e.width * ratD);
+                        h = ~~(e.height * ratD);
+                        var g = this.name ? y + ~~(h * 0.7) : y - ~~(h * 0.5);
+                        ctx.drawImage(e, x - ~~(m * 0.5), g, m, h);
                     }
                 }
-                ctx.restore()
+                ctx.restore();
             }
         }
     };
@@ -1437,24 +1441,24 @@
                     fontsize = this._size,
                     font = fontsize + 'px Ubuntu';
                 ctx.font = font;
-                var h = ~~(.2 * fontsize);
-                canvas.width = (ctx.measureText(value).width +
-                    6) * scale;
+                var h = ~~(.2 * fontsize),
+                    wd = fontsize * 0.1;
+                var h2 = h * 0.5;
+                canvas.width = ctx.measureText(value).width * scale + 3;
                 canvas.height = (fontsize + h) * scale;
                 ctx.font = font;
-                ctx.scale(scale, scale);
                 ctx.globalAlpha = 1;
-                ctx.lineWidth = 3;
+                ctx.lineWidth = wd;
                 ctx.strokeStyle = this._strokeColor;
                 ctx.fillStyle = this._color;
-                this._stroke && ctx.strokeText(value, 3, fontsize - h / 2);
-                ctx.fillText(value, 3, fontsize - h / 2)
+                ctx.scale(scale, scale);
+                this._stroke && ctx.strokeText(value, 0, fontsize - h2);
+                ctx.fillText(value, 0, fontsize - h2);
             }
             return this._canvas
         },
         getWidth: function() {
-            return (ctx.measureText(this._value).width +
-                6);
+            return (ctx.measureText(this._value).width + 6);
         }
     };
     Date.now || (Date.now = function() {
@@ -1594,7 +1598,10 @@
         favCanvas.height = 32;
         var ctx = favCanvas.getContext("2d");
         renderFavicon();
-        setInterval(renderFavicon, 1E3);
+
+        // Causes stuttering..
+        //setInterval(renderFavicon, 1E3);
+
         setInterval(drawChatBoard, 1E3);
     });
     wHandle.onload = gameLoop
